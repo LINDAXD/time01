@@ -1,8 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ page import="java.io.PrintWriter" %>
-<%@ page import="bbs.BbsDAO" %>
-<%@ page import="bbs.Bbs" %>
+<%@ page import="user.UserDAO" %>
+<%@ page import="user.User" %>
 <%@ page import="java.util.ArrayList" %>
 <!DOCTYPE html>
 <html>
@@ -12,22 +11,12 @@
 <link rel="stylesheet" href="css/bootstrap.css" />
 <link rel="stylesheet" href="css/custom.css" />
 <title>Insert title here</title>
-<style type="text/css">
-	a, a:hover {
-		color: #000000;
-		text-decoration: none;
-	}
-</style>
 </head>
 <body>
 	<%
 		String userID = null;
-		if(session.getAttribute("userID") != null){
+		if (session.getAttribute("userID") != null) { //session 에 userID 값을 가져옴
 			userID = (String) session.getAttribute("userID");
-		}
-		int pageNumber = 1; // 기본페이지
-		if(request.getParameter("pageNumber") != null){
-			pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
 		}
 	%>
 	<nav class="navbar navbar-default">
@@ -67,9 +56,8 @@
 				<ul class="nav navbar-nav navbar-right">
 					<li class="dropdown">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-							aria-expanded="false">회원관리<span class="caret"></span></a>
+							aria-expanded="false">내정보<span class="caret"></span></a>
 						<ul class="dropdown-menu">
-							<li><a href="mypage.jsp">내정보</a></li>
 							<li><a href="Withdrawal.jsp">회원탈퇴</a></li>
 							<li><a href="logoutAction.jsp">로그아웃</a></li>
 						</ul>
@@ -80,53 +68,46 @@
 			%>
 		</div>
 	</nav>
-	
-	<!-- 게시판 시작 -->
-	
 	<div class="container">
-		<div class="row">
-			<table class="table table-striped" style="text-align:center; border: 1px solid #dddddd">
-				<thead>
-					<tr>
-						<th style="background-color: #eeeeee; text-align:center;">번호</th>
-						<th style="background-color: #eeeeee; text-align:center;">제목</th>
-						<th style="background-color: #eeeeee; text-align:center;">작성자</th>
-						<th style="background-color: #eeeeee; text-align:center;">작성일</th>
-					</tr>
-				</thead>
-				<tbody>
+		<div class="col-lg-4"></div>
+		<div class="col-lg-4">
+			<div class="jumbotron" style="padding-top: 20px;">
+				<form action="mypageupdateAction.jsp" method="post">
+					<h3 style="text-align: center;">내정보 화면</h3>
+					
 					<%
-						BbsDAO bbsDAO = new BbsDAO();
-						ArrayList<Bbs> list = bbsDAO.getList(pageNumber);
-						for(int i=0; i<list.size(); i++){
+						UserDAO userDAO = new UserDAO();
+						User user = userDAO.getUser(userID);
 					%>
-						<tr>
-							<td><%= list.get(i).getBbsID() %></td>
-							<td><a href="view.jsp?bbsID=<%=list.get(i).getBbsID()%>"><%= list.get(i).getBbsTitle() %></a></td>
-							<td><%= list.get(i).getUserID() %></td>
-							<td><%= list.get(i).getBbsDate().substring(0, 11) + list.get(i).getBbsDate().substring(11, 13) + "시" + list.get(i).getBbsDate().substring(14, 16) + "분" %></td>
-						</tr>
-					<%
-						}
-					%>
-
-				</tbody>
-			</table>
-			<%
-				if(pageNumber != 1){
-			%>
-				<a href="bbs.jsp?pageNumber=<%=pageNumber - 1%>" class="btn btn-success btn-arraw-left">이전</a>
-			<%
-				} 
-				if(bbsDAO.nextPage(pageNumber + 1)) {
-			%>
-				<a href="bbs.jsp?pageNumber=<%=pageNumber + 1%>" class="btn btn-success btn-arraw-left">다음</a>
-			<%
-				}
-			%>
-			
-			<a href="write.jsp" class="btn btn-primary pull-right">글쓰기</a>
+						
+					<div class="form-group">
+						아이디 <input type="text" class="form-control" placeholder="아이디" name="userID" maxlength="20" value="<%=user.getUserID()%>" readonly />
+					</div>
+					<div class="form-group">
+						비밀번호<input type="password" class="form-control" placeholder="비밀번호" name="userPassword" value="<%=user.getUserPassword()%>" maxlength="20"/>
+					</div>
+					<div class="form-group">
+						이름<input type="text" class="form-control" placeholder="이름" name="userName" maxlength="20" value="<%=user.getUserName()%>"/>
+					</div>
+					<div class="form-group" style="text-align: center;">
+					성별
+						<div class="btn-group" data-toggle="buttons">
+							<label class="btn btn-primary active">
+								<input type="radio" name="userGender" autocomplete="off" value="male" checked />남자
+							</label>
+							<label class="btn btn-primary">
+								<input type="radio" name="userGender" autocomplete="off" value="female"/>여자
+							</label>
+						</div>
+					</div>
+					<div class="form-group">
+						E-mail<input type="email" class="form-control" placeholder="이메일" name="userEmail" maxlength="20" value="<%=user.getUserEmail()%>"/>
+					</div>															
+					<input type="submit" class="btn btn-primary form-control" value="수정하기"/>
+				</form>
+			</div>
 		</div>
+		<div class="col-lg-4"></div>
 	</div>
 	
 	<script src="http://code.jquery.com/jquery-3.1.1.min.js"></script>

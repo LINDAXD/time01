@@ -1,23 +1,14 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
-<%@ page import="java.io.PrintWriter" %>
-<%@ page import="bbs.BbsDAO" %>
-<%@ page import="bbs.Bbs" %>
-<%@ page import="java.util.ArrayList" %>
+	pageEncoding="UTF-8"%>
+<%@ page import="java.io.PrintWriter"%>
 <!DOCTYPE html>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="stylesheet" href="css/bootstrap.css" />
 <link rel="stylesheet" href="css/custom.css" />
 <title>Insert title here</title>
-<style type="text/css">
-	a, a:hover {
-		color: #000000;
-		text-decoration: none;
-	}
-</style>
 </head>
 <body>
 	<%
@@ -25,10 +16,16 @@
 		if(session.getAttribute("userID") != null){
 			userID = (String) session.getAttribute("userID");
 		}
-		int pageNumber = 1; // 기본페이지
-		if(request.getParameter("pageNumber") != null){
-			pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
+		
+		if(userID == null){
+			PrintWriter script = response.getWriter();
+			script.println("<script>");
+			script.println("alert('로그인을 하세요.')");
+			script.println("location.href = 'login.jsp'");
+			script.println("</script>");
 		}
+		
+		
 	%>
 	<nav class="navbar navbar-default">
 		<div class="navbar-header">
@@ -80,55 +77,50 @@
 			%>
 		</div>
 	</nav>
-	
+
 	<!-- 게시판 시작 -->
-	
+
 	<div class="container">
 		<div class="row">
-			<table class="table table-striped" style="text-align:center; border: 1px solid #dddddd">
-				<thead>
-					<tr>
-						<th style="background-color: #eeeeee; text-align:center;">번호</th>
-						<th style="background-color: #eeeeee; text-align:center;">제목</th>
-						<th style="background-color: #eeeeee; text-align:center;">작성자</th>
-						<th style="background-color: #eeeeee; text-align:center;">작성일</th>
-					</tr>
-				</thead>
-				<tbody>
-					<%
-						BbsDAO bbsDAO = new BbsDAO();
-						ArrayList<Bbs> list = bbsDAO.getList(pageNumber);
-						for(int i=0; i<list.size(); i++){
-					%>
-						<tr>
-							<td><%= list.get(i).getBbsID() %></td>
-							<td><a href="view.jsp?bbsID=<%=list.get(i).getBbsID()%>"><%= list.get(i).getBbsTitle() %></a></td>
-							<td><%= list.get(i).getUserID() %></td>
-							<td><%= list.get(i).getBbsDate().substring(0, 11) + list.get(i).getBbsDate().substring(11, 13) + "시" + list.get(i).getBbsDate().substring(14, 16) + "분" %></td>
-						</tr>
-					<%
-						}
-					%>
 
-				</tbody>
-			</table>
-			<%
-				if(pageNumber != 1){
-			%>
-				<a href="bbs.jsp?pageNumber=<%=pageNumber - 1%>" class="btn btn-success btn-arraw-left">이전</a>
-			<%
-				} 
-				if(bbsDAO.nextPage(pageNumber + 1)) {
-			%>
-				<a href="bbs.jsp?pageNumber=<%=pageNumber + 1%>" class="btn btn-success btn-arraw-left">다음</a>
-			<%
-				}
-			%>
-			
-			<a href="write.jsp" class="btn btn-primary pull-right">글쓰기</a>
+			<form action="evaAction.jsp" method="post">
+				<table class="table table-striped"
+					style="text-align: center; border: 1px solid #dddddd">
+					<thead>
+						<tr>
+							<th colspan="2"
+								style="background-color: #eeeeee; text-align: center;">수강평
+								글쓰기 양식</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><input type="text" class="form-control"
+								placeholder="글 제목" name="evaTitle" maxlength="50" /></td>
+						</tr>
+						<tr>
+							<td><input type="text" class="form-control"
+								placeholder="수강과목명" name="evaSubject" maxlength="50" /></td>
+						</tr>
+						<tr>
+							<td><input type="text" class="form-control"
+								placeholder="강사명" name="evaTeacher" maxlength="50" /></td>
+						</tr>
+						<tr>
+							<td><textarea class="form-control" placeholder="글 내용"
+									name="evaContent" maxlength="2048" style="height: 350px;"></textarea></td>
+						</tr>
+						<tr>
+							<td><input type="text" class="form-control"
+								placeholder="평가점수 5점 만점" name="evaScore" maxlength="5" /></td>
+						</tr>
+					</tbody>
+				</table>
+				<input type="submit" class="btn btn-primary pull-right" value="글쓰기" />
+			</form>
 		</div>
 	</div>
-	
+
 	<script src="http://code.jquery.com/jquery-3.1.1.min.js"></script>
 	<script src="js/bootstrap.min.js"></script>
 </body>

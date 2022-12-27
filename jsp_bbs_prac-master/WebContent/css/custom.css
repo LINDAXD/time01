@@ -13,3 +13,13 @@ h1 {
 .carousel-indicators .active {
     background-color: #000;
 }
+
+a{
+	color: #337ab7;
+	text-decoration: none;
+}
+a:hover {
+	font-weight:bold;
+	text-decoration: underline;
+}
+

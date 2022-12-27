@@ -1,5 +1,10 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ page import="java.io.PrintWriter" %>
+<%@ page import="eva.EvaDAO" %>
+<%@ page import="eva.Eva" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page buffer = "100000kb" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,13 +12,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <link rel="stylesheet" href="css/bootstrap.css" />
 <link rel="stylesheet" href="css/custom.css" />
-<title>Insert title here</title>
+<title>JSP 게시판-수강평</title>
 </head>
 <body>
-<%
+	<%
 		String userID = null;
 		if(session.getAttribute("userID") != null){
 			userID = (String) session.getAttribute("userID");
+		}
+		int pageNumber = 1; // 기본페이지
+		if(request.getParameter("pageNumber") != null){
+			pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
 		}
 	%>
 	<nav class="navbar navbar-default">
@@ -66,39 +75,61 @@
 			%>
 		</div>
 	</nav>
+	
+	<!-- 게시판 시작 -->
+	
 	<div class="container">
-		<div class="col-lg-4"></div>
-		<div class="col-lg-4">
-			<div class="jumbotron" style="padding-top: 20px;">
-				<form action="joinAction.jsp" method="post">
-					<h3 style="text-align: center;">회원가입 화면</h3>
-					<div class="form-group">
-						<input type="text" class="form-control" placeholder="아이디" name="userID" maxlength="20"/>
-					</div>
-					<div class="form-group">
-						<input type="password" class="form-control" placeholder="비밀번호" name="userPassword" maxlength="20"/>
-					</div>
-					<div class="form-group">
-						<input type="text" class="form-control" placeholder="이름" name="userName" maxlength="20"/>
-					</div>
-					<div class="form-group" style="text-align: center;">
-						<div class="btn-group" data-toggle="buttons">
-							<label class="btn btn-primary active">
-								<input type="radio" name="userGender" autocomplete="off" value="male" checked />남자
-							</label>
-							<label class="btn btn-primary">
-								<input type="radio" name="userGender" autocomplete="off" value="female"/>여자
-							</label>
-						</div>
-					</div>
-					<div class="form-group">
-						<input type="email" class="form-control" placeholder="이메일" name="userEmail" maxlength="20"/>
-					</div>															
-					<input type="submit" class="btn btn-primary form-control" value="회원가입"/>
-				</form>
-			</div>
+		<div class="row">
+		<a href="evawrite.jsp" class="btn btn-primary pull-right">글쓰기</a>
+		
+			<table class="table table-striped" style="text-align:center; border: 1px solid #dddddd">
+				<thead>
+					<tr>
+						<th style="background-color: #eeeeee; text-align:center;">번호</th>
+						<th style="background-color: #eeeeee; text-align:center;">제목</th>
+						<th style="background-color: #eeeeee; text-align:center;">수강과목명</th>
+						<th style="background-color: #eeeeee; text-align:center;">강사명</th>
+						<th style="background-color: #eeeeee; text-align:center;">내용</th>
+						<th style="background-color: #eeeeee; text-align:center;">평가점수</th>
+						<th style="background-color: #eeeeee; text-align:center;">작성일</th>
+					</tr>
+				</thead>
+				<tbody>
+					<%
+						EvaDAO evaDAO = new EvaDAO();
+						ArrayList<Eva> list = evaDAO.getList(pageNumber);
+						for(int i=0; i<list.size(); i++){
+					%>
+						<tr>
+							<td><%= list.get(i).getEvaID() %></td>
+							<td><a href="evaview.jsp?evaID=<%=list.get(i).getEvaID()%>"><%= list.get(i).getEvaTitle() %></a></td>
+							<td><%= list.get(i).getEvaSubject() %></td>
+							<td><%= list.get(i).getEvaTeacher() %></td>
+							<td><%= list.get(i).getEvaContent() %></td>
+							<td><%= list.get(i).getEvaScore() %></td>
+							<td><%= list.get(i).getEvaDate().substring(0, 11) + list.get(i).getEvaDate().substring(11, 13) + "시" + list.get(i).getEvaDate().substring(14, 16) + "분" %></td>
+						</tr>
+					<%
+						}
+					%>
+
+				</tbody>
+			</table>
+			<%
+				if(pageNumber != 1){
+			%>
+				<a href="Eva.jsp?pageNumber=<%=pageNumber - 1%>" class="btn btn-success btn-arraw-left">이전</a>
+			<%
+				} 
+				if(evaDAO.nextPage(pageNumber + 1)) {
+			%>
+				<a href="Eva.jsp?pageNumber=<%=pageNumber + 1%>" class="btn btn-success btn-arraw-left">다음</a>
+			<%
+				}
+			%>
+			
+			
 		</div>
-		<div class="col-lg-4"></div>
 	</div>
 	
 	<script src="http://code.jquery.com/jquery-3.1.1.min.js"></script>
